@@ -1,0 +1,29 @@
+    - name: Install apache
+      apt: pkg=apache2
+      sudo: yes
+      notify:
+      - Disable default VirtualHost
+      - Set ServerName
+      - Restart apache
+
+    - name: Add touch typing game virtual host
+      lineinfile: dest=/etc/apache2/sites-available/touch-typing.conf line="{{ item }}" owner=www-data group=www-data create=yes
+      sudo: yes
+      with_items:
+      - "<VirtualHost *:80>"
+      - "    ServerName typing.qual.is"
+      - "    DocumentRoot /home/vagrant/touch-typing"
+      - "    DirectoryIndex index.html"
+      - ""
+      - "    <Directory />"
+      - "        Options FollowSymLinks"
+      - "        AllowOverride None"
+      - "        Require all granted"
+      - "    </Directory>"
+      - "</VirtualHost>"
+
+    - name: Enable VirtualHost
+      shell: a2ensite touch-typing
+      sudo: yes
+      notify:
+      - Restart apache

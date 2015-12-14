@@ -1,0 +1,11 @@
+    - name: Disable default VirtualHost
+      shell: a2dissite 000-default
+      sudo: yes
+
+    - name: Set ServerName
+      lineinfile: dest=/etc/apache2/apache2.conf line="ServerName localhost"
+      sudo: yes
+
+    - name: Restart apache
+      service: name=apache2 state=restarted
+      sudo: yes

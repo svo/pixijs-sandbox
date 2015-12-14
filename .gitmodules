@@ -1,0 +1,6 @@
+[submodule "environment-core"]
+	path = environment-core
+	url = https://github.com/svo/environment-core.git
+[submodule "pixi.js"]
+	path = pixi.js
+	url = https://github.com/pixijs/pixi.js.git
