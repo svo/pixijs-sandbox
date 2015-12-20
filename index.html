@@ -16,7 +16,9 @@
             resources = PIXI.loader.resources,
             Sprite = PIXI.Sprite
             TextureCache = PIXI.utils.TextureCache,
-            Rectangle = PIXI.Rectangle;
+            Rectangle = PIXI.Rectangle,
+            Text = PIXI.Text,
+            Graphics = PIXI.Graphics;
 
         var stage = new Container(),
             renderer = autoDetectRenderer(256, 256);
@@ -24,10 +26,10 @@
         var sprite;
         var smiles = new ParticleContainer(6, 
             {
-                rotation: true,
-                alpha: true,
-                scale: true,
-                uvs: true
+                rotation: false,
+                alpha: false,
+                scale: false,
+                uvs: false
             }
         );//new Container();
 
@@ -144,6 +146,77 @@
             state();
 
             renderer.render(stage);
+        }
+
+        function drawText() {
+            var message = new Text(
+              "Hello Pixi!",
+              {font: "32px sans-serif", fill: "white"}
+            );
+
+            message.position.set(54, 96);
+            stage.addChild(message);
+
+            message.text = "Text changed!";
+            message.style = {fill: "black", font: "16px PetMe64"};
+        }
+
+        function drawShapes() {
+            var rectangle = new Graphics();
+            rectangle.beginFill(0x66CCFF);
+            rectangle.lineStyle(4, 0xFF3300, 1);
+            rectangle.drawRect(512, 256, 32, 64);
+            rectangle.endFill();
+            stage.addChild(rectangle);
+
+            var circle = new Graphics();
+            circle.beginFill(0x9966FF);
+            circle.drawCircle(0, 0, 32);
+            circle.endFill();
+            circle.x = 32;
+            circle.y = 32;
+            stage.addChild(circle);
+
+            var ellipse = new Graphics();
+            ellipse.beginFill(0xFFFF00);
+            ellipse.drawEllipse(0, 0, 50, 20);
+            ellipse.endFill();
+            ellipse.x = 180;
+            ellipse.y = 130;
+            stage.addChild(ellipse);
+
+            var roundBox = new Graphics();
+            roundBox.lineStyle(4, 0x99CCFF, 1);
+            roundBox.beginFill(0xFF9933);
+            roundBox.drawRoundedRect(0, 0, 84, 36, 10)
+            roundBox.endFill();
+            roundBox.x = 48;
+            roundBox.y = 190;
+            stage.addChild(roundBox);
+
+            var line = new Graphics();
+            line.lineStyle(4, 0xFFFFFF, 1);
+            line.moveTo(0, 0);
+            line.lineTo(768, 512);
+            line.x = 0;
+            line.y = 0;
+            stage.addChild(line);
+
+            var triangle = new Graphics();
+            triangle.beginFill(0x66FF33);
+
+            triangle.drawPolygon([
+                -32, 64,
+                32, 64,
+                0, 0
+            ]);
+
+            triangle.endFill();
+
+            triangle.x = 180;
+            triangle.y = 22;
+
+            stage.addChild(triangle);
         }
 
         function play() {
@@ -268,6 +341,10 @@
                     smiles.vy = 0;
                 }
             };
+
+            drawShapes();
+
+            drawText();
 
             gameLoop();
 
