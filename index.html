@@ -1,9 +1,304 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>Hello World</title>
+<head>
+    <style>* {padding: 0; margin: 0}</style>
+</head>
 <body>
     <script src="pixi.js/bin/pixi.js"></script>
     <script>
         console.log(PIXI);
+
+        var Container = PIXI.Container,
+            autoDetectRenderer = PIXI.autoDetectRenderer,
+            loader = PIXI.loader,
+            resources = PIXI.loader.resources,
+            Sprite = PIXI.Sprite
+            TextureCache = PIXI.utils.TextureCache,
+            Rectangle = PIXI.Rectangle;
+
+        var stage = new Container(),
+            renderer = autoDetectRenderer(256, 256);
+
+        var sprite;
+        var smiles = new Container();
+
+        var state = play;
+
+        renderer.autoResize = true;
+        renderer.view.style.position = "absolute";
+        renderer.view.style.display = "block";
+        renderer.resize(window.innerWidth, window.innerHeight);
+
+        document.body.appendChild(renderer.view);
+
+        loader.add([
+                "images/01.png",
+                "images/02.png",
+                "images/03.png",
+                "images/04.png",
+                "images/05.png",
+                "images/06.png",
+                "images/07.png",
+                "images/08.png",
+                "images/09.png",
+                "images/tileset.png",
+                "images/smiles.json"
+            ]).on("progress", loadProgressHandler).load(setup);
+
+        function loadProgressHandler(loader, resource) {
+            console.log("data: " + resource.data); 
+            console.log("error: " + resource.error);
+            console.log("loading: " + resource.url); 
+            console.log("progress: " + loader.progress + "%");  
+        }
+
+        function addTestSprite() {
+            sprite = new Sprite(resources["images/01.png"].texture);  
+            //sprite.x = 96;
+            //sprite.y = 96;
+            sprite.position.set(96, 96);
+
+            //sprite.width = 80;
+            //sprite.height = 120;
+            //sprite.scale.x = 0.5;
+            //sprite.scale.y = 0.5;
+            //sprite.scale.x = 2;
+            //sprite.scale.y = 2;
+            sprite.scale.set(0.5, 0.5);
+
+            //sprite.anchor.x = 0.5;
+            //sprite.anchor.y = 0.5;
+            sprite.anchor.set(0.5, 0.5)
+            //sprite.pivot.set(32, 32)
+            sprite.rotation = 0.5;
+
+            sprite.vx = 0;
+            sprite.vy = 0;
+
+            stage.addChild(sprite);
+        }
+
+        function addRocket() {
+            var texture = TextureCache["images/tileset.png"];
+            var rectangle = new Rectangle(96, 64, 32, 32);
+            texture.frame = rectangle;
+            var rocket = new Sprite(texture);
+            rocket.x = 32;
+            rocket.y = 32;
+
+            stage.addChild(rocket);
+        }
+
+        function addSmiles() {
+            var id = PIXI.loader.resources["images/smiles.json"].textures;
+
+            var background = new Sprite(id["00007_bluesky_1024x768.jpg"]);
+            stage.addChild(background);
+
+            for(i=1; i <= 6; i++) {
+                //var texture = TextureCache["smile-" + i + ".png"];
+                //var smile = new Sprite(texture);
+                //var smile = new Sprite(resources["images/smiles.json"].textures["smile-" + i + ".png"])
+                var smile = new Sprite(id["smile-" + i + ".png"])
+                //smile.x = 30 * i;
+                //smile.y = 30 * i;
+
+                //stage.addChild(smile);
+
+                smile.x = randomInt(0, (stage.width - smile.width));
+                smile.y = randomInt(0, (stage.height - smile.height));
+                //smile.y = (stage.height / 2) - (smile.height / 2);
+           
+                smiles.addChild(smile);
+            }
+
+            console.log(smiles.children)
+            console.log(smiles.width);
+            console.log(smiles.height);
+
+            //smiles.width = stage.width / 2;
+            //smiles.height = stage.height / 2;
+
+            for(i=0; i<smiles.children.length; i++) {
+                console.log("local")
+                console.log(smiles.children[i].position)
+                console.log("global")
+                console.log(smiles.toGlobal(smiles.children[i].position))
+            }
+
+            stage.addChild(smiles);
+        }
+
+        function gameLoop() {
+            requestAnimationFrame(gameLoop);
+
+            state();
+
+            renderer.render(stage);
+        }
+
+        function play() {
+            //sprite.vx = -1;
+            //sprite.vy = 4;
+
+            sprite.x += sprite.vx;
+            sprite.y += sprite.vy;
+
+            smiles.position.set(smiles.x += smiles.vx, smiles.y += smiles.vy)
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function keyboard(keyCode) {
+            var key = {};
+            key.code = keyCode;
+            key.isDown = false;
+            key.isUp = true;
+            key.press = undefined;
+            key.release = undefined;
+            
+            key.downHandler = function(event) {
+                if (event.keyCode === key.code) {
+                    if (key.isUp && key.press) key.press();
+                    key.isDown = true;
+                    key.isUp = false;
+                }
+
+                event.preventDefault();
+            };
+
+            key.upHandler = function(event) {
+                if (event.keyCode === key.code) {
+                    if (key.isDown && key.release) key.release();
+                    key.isDown = false;
+                    key.isUp = true;
+                }
+
+                event.preventDefault();
+            };
+
+            window.addEventListener(
+                "keydown", key.downHandler.bind(key), false
+            );
+
+            window.addEventListener(
+                "keyup", key.upHandler.bind(key), false
+            );
+
+            return key;
+        }
+
+        function setup() {
+            console.log("setup"); 
+
+            addSmiles();
+
+            addTestSprite();
+
+            addRocket();
+
+            var left = keyboard(37),
+                up = keyboard(38),
+                right = keyboard(39),
+                down = keyboard(40);
+
+            left.press = function() {
+                sprite.vx = -5;
+                sprite.vy = 0;
+                smiles.vx = 5;
+                smiles.vy = 0;
+            };
+
+            left.release = function() {
+                if (!right.isDown && sprite.vy === 0) {
+                    sprite.vx = 0;
+                    smiles.vx = 0;
+                }
+            };
+
+            up.press = function() {
+                sprite.vy = -5;
+                sprite.vx = 0;
+                smiles.vy = 5;
+                smiles.vx = 0;
+            };
+
+            up.release = function() {
+                if (!down.isDown && sprite.vx === 0) {
+                    sprite.vy = 0;
+                    smiles.vy = 0;
+                }
+            };
+
+            right.press = function() {
+                sprite.vx = 5;
+                sprite.vy = 0;
+                smiles.vx = -5;
+                smiles.vy = 0;
+            };
+
+            right.release = function() {
+                if (!left.isDown && sprite.vy === 0) {
+                    sprite.vx = 0;
+                    smiles.vx = 0;
+                }
+            };
+
+            down.press = function() {
+                sprite.vy = 5;
+                sprite.vx = 0;
+                smiles.vy = -5;
+                smiles.vx = 0;
+            };
+
+            down.release = function() {
+                if (!up.isDown && sprite.vx === 0) {
+                    sprite.vy = 0;
+                    smiles.vy = 0;
+                }
+            };
+
+            gameLoop();
+
+            renderer.render(stage);
+        }
+
+//        console.log(PIXI);
+//
+//        var TextureCache = PIXI.utils.TextureCache;
+//
+//        var renderer = PIXI.autoDetectRenderer(256, 256/*, {antialias: false, transparent: false, resolution: 1}*/);
+//        renderer.view.style.border = "1px dashed black";
+//        renderer.backgroundColor = 0x061639;
+//        renderer.autoResize = true;
+//        //renderer.resize(512, 512);
+//        renderer.view.style.position = "absolute";
+//        renderer.view.style.display = "block";
+//        renderer.resize(window.innerWidth, window.innerHeight);
+//
+//        var stage = new PIXI.Container();
+//
+//        document.body.appendChild(renderer.view);
+//
+//        PIXI.loader
+//            .add("images/01.png")
+//            .load(setup);
+//
+//        function setup() {
+//            var sprite = new PIXI.Sprite(
+//                PIXI.loader.resources["images/01.png"].texture
+//            );
+//            var texture = TextureCache["images/01.png"];
+//            console.log(texture);
+//
+//            stage.addChild(sprite);
+//            //stage.removeChild(sprite);
+//            //sprite.visible = false;
+//
+//            renderer.render(stage);
+//        }        
     </script>
 </body>

@@ -6,13 +6,13 @@
       - Set ServerName
       - Restart apache
 
-    - name: Add touch typing game virtual host
-      lineinfile: dest=/etc/apache2/sites-available/touch-typing.conf line="{{ item }}" owner=www-data group=www-data create=yes
+    - name: Add pixijs sandbox game virtual host
+      lineinfile: dest=/etc/apache2/sites-available/pixijs-sandbox.conf line="{{ item }}" owner=www-data group=www-data create=yes
       sudo: yes
       with_items:
       - "<VirtualHost *:80>"
-      - "    ServerName typing.qual.is"
-      - "    DocumentRoot /home/vagrant/touch-typing"
+      - "    ServerName pixijs-sandbox.qual.is"
+      - "    DocumentRoot /home/vagrant/pixijs-sandbox"
       - "    DirectoryIndex index.html"
       - ""
       - "    <Directory />"
@@ -23,7 +23,7 @@
       - "</VirtualHost>"
 
     - name: Enable VirtualHost
-      shell: a2ensite touch-typing
+      shell: a2ensite pixijs-sandbox
       sudo: yes
       notify:
       - Restart apache
