@@ -10,6 +10,7 @@
         console.log(PIXI);
 
         var Container = PIXI.Container,
+            ParticleContainer = PIXI.ParticleContainer,
             autoDetectRenderer = PIXI.autoDetectRenderer,
             loader = PIXI.loader,
             resources = PIXI.loader.resources,
@@ -21,7 +22,14 @@
             renderer = autoDetectRenderer(256, 256);
 
         var sprite;
-        var smiles = new Container();
+        var smiles = new ParticleContainer(6, 
+            {
+                rotation: true,
+                alpha: true,
+                scale: true,
+                uvs: true
+            }
+        );//new Container();
 
         var state = play;
 
