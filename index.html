@@ -24,6 +24,9 @@
             renderer = autoDetectRenderer(256, 256);
 
         var sprite;
+        var rocket;
+        var message;
+
         var smiles = new ParticleContainer(6, 
             {
                 rotation: false,
@@ -93,7 +96,7 @@
             var texture = TextureCache["images/tileset.png"];
             var rectangle = new Rectangle(96, 64, 32, 32);
             texture.frame = rectangle;
-            var rocket = new Sprite(texture);
+            rocket = new Sprite(texture);
             rocket.x = 32;
             rocket.y = 32;
 
@@ -149,7 +152,7 @@
         }
 
         function drawText() {
-            var message = new Text(
+            message = new Text(
               "Hello Pixi!",
               {font: "32px sans-serif", fill: "white"}
             );
@@ -219,12 +222,51 @@
             stage.addChild(triangle);
         }
 
+        function hitTestRectangle(r1, r2) {
+            var hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+            hit = false;
+
+            r1.centerX = r1.x + r1.width / 2;
+            r1.centerY = r1.y + r1.height / 2;
+            r2.centerX = r2.x + r2.width / 2;
+            r2.centerY = r2.y + r2.height / 2;
+
+            r1.halfWidth = r1.width / 2;
+            r1.halfHeight = r1.height / 2;
+            r2.halfWidth = r2.width / 2;
+            r2.halfHeight = r2.height / 2;
+
+            vx = r1.centerX - r2.centerX;
+            vy = r1.centerY - r2.centerY;
+
+            combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+            combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+
+            if (Math.abs(vx) < combinedHalfWidths) {
+                if (Math.abs(vy) < combinedHalfHeights) {
+                    hit = true;
+                } else {
+                    hit = false;
+                }
+            } else {
+                hit = false;
+            }
+
+            return hit;
+        };
+
         function play() {
             //sprite.vx = -1;
             //sprite.vy = 4;
 
             sprite.x += sprite.vx;
             sprite.y += sprite.vy;
+
+            if (hitTestRectangle(sprite, rocket)) {
+                message.text = "hit!";
+            } else {
+                message.text = "No collision...";
+            }
 
             smiles.position.set(smiles.x += smiles.vx, smiles.y += smiles.vy)
         }
